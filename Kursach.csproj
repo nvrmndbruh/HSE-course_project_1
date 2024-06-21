@@ -155,13 +155,23 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\russian.txt" />
+    <Resource Include="Resources\languages\russian.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\english.txt" />
+    <Resource Include="Resources\languages\english.txt" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\stats.txt" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\logo\small_logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\logo\main_logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Views\small_logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

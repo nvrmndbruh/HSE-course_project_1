@@ -7,15 +7,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fs="http://schemas.fontawesome.com/icons/"
         xmlns:vm="clr-namespace:Kursach.ViewModel"
+        xmlns:r="Kursach.Resources"
         mc:Ignorable="d"
         MinHeight="800" MinWidth="1300"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="CanResize"
         AllowsTransparency="True"
-        Title="Тренажер для слепой печати"
-        Background="{StaticResource BGBrush}">
-
+        Title="TYPR"
+        Background="{StaticResource BGBrush}" Icon="/Resources/logo/small_logo.png"
+        >
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="2"/>
     </WindowChrome.WindowChrome>
@@ -33,6 +34,11 @@
             <RowDefinition Height="50*" />
             <RowDefinition Height="30*" />
         </Grid.RowDefinitions>
+
+        <Image Source="\Resources\logo\main_logo.png"
+                Width="200"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left" Margin="20" Grid.Row="0"/>
 
 
         <StackPanel Orientation="Horizontal"
@@ -74,6 +80,8 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
+            
+
             <Rectangle Fill="{StaticResource DarkerBGBrush}"
                        Grid.Column="0"
                        Height="50"
@@ -84,7 +92,7 @@
                        RadiusX="20"
                        Margin="0 -10">
             </Rectangle>
-            
+
             <TextBlock Grid.Column="0"
                        Text="{Binding ElapsedTime, UpdateSourceTrigger=PropertyChanged}"
                        Height="30"
@@ -106,7 +114,7 @@
                        RadiusY="20"
                        RadiusX="20"
                        Margin="0 -10"/>
-            
+
             <Expander Grid.Column="1" 
                       HorizontalAlignment="Center"
                       VerticalAlignment="Bottom"
