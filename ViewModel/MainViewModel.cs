@@ -238,7 +238,7 @@ namespace Kursach.ViewModel
         private void OnChangeLanguageCommandExecuted(object parameter)
         {
             Language = parameter.ToString();
-            CurrentFilePath = Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources", $"{Language}.txt");
+            CurrentFilePath = Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources/languages", $"{Language}.txt");
             OnCancelTestCommandExecuted(parameter);
             OnGenerateTextCommandExecuted(parameter);
         }
@@ -438,7 +438,7 @@ namespace Kursach.ViewModel
 
             LineCount = 3;
             DoneLines = 0;
-            Lesson = new LessonText(Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources", "russian.txt"), 77);
+            Lesson = new LessonText(Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources/languages", "russian.txt"), 77);
 
             #region Команды
             ChangeLanguageCommand = new DelegateCommand(OnChangeLanguageCommandExecuted, CanChangeLanguageCommandExecute);
