@@ -15,7 +15,7 @@
         AllowsTransparency="True"
         Title="Тренажер для слепой печати"
         Background="{StaticResource BGBrush}">
-    
+
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="2"/>
     </WindowChrome.WindowChrome>
@@ -39,7 +39,7 @@
                     Grid.Row="0"
                     Height="20"
                     VerticalAlignment="Top"
-                    HorizontalAlignment="Right" Margin="15">
+                    HorizontalAlignment="Right" Margin="5">
 
 
             <Button Style="{StaticResource TransparentButton}"

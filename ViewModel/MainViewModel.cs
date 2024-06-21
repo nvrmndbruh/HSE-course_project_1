@@ -10,8 +10,8 @@ namespace Kursach.ViewModel
     internal class MainViewModel : ViewModel
     {
         private LessonText Lesson;
-
         string statsFilePath = Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources", "stats.txt");
+
 
         private bool isStarted;
         public bool IsStarted
@@ -37,7 +37,6 @@ namespace Kursach.ViewModel
                 OnPropertyChanged(nameof(ElapsedTime));
             }
         }
-
         private void OnTimerTick(object sender, EventArgs e)
         {
             ElapsedTime += 0.1;
@@ -178,7 +177,6 @@ namespace Kursach.ViewModel
             {
                 OnGenerateTextCommandExecuted(parameter);
             }
-
         }
 
         int errorCount = 0;
@@ -246,11 +244,9 @@ namespace Kursach.ViewModel
 
         #region Нажатие клавиш
 
-        int[] lengths = new int[2];
-
-        int symbolCount;
-
-        double accuracy;
+        int[] lengths = new int[2]; // сохранение длины введенной строки до нажатия и после
+        int symbolCount;            // количество введенных символов
+        double accuracy;            // точность
 
         public ICommand KeyPressedCommand { get; }
 
@@ -258,6 +254,7 @@ namespace Kursach.ViewModel
         {
             if (CanStartTestCommandExecute(parameter))
                 OnStartTestCommandExecuted(parameter);
+
             if (lengths[0] == 0)
             {
                 lengths[0] = InputedText.Length;
@@ -267,6 +264,7 @@ namespace Kursach.ViewModel
                 lengths[1] = lengths[0];
                 lengths[0] = InputedText.Length;
             }
+
             if (InputedText.Length == CurrentText.Length)
             {
                 if (InputedText[CurrentIndex - 1] != CurrentText[CurrentIndex - 1])
@@ -274,6 +272,7 @@ namespace Kursach.ViewModel
                 InputedText = "";
                 DoneLines++;
                 symbolCount += CurrentText.Length;
+
                 if (DoneLines == LineCount)
                 {
                     timer.Stop();
@@ -291,6 +290,7 @@ namespace Kursach.ViewModel
                     File.WriteAllText(statsFilePath, newContent);
                     IsStarted = false;
                 }
+
                 TextSwap(parameter);
                 lengths[0] = 0;
                 lengths[1] = 0;
@@ -436,6 +436,10 @@ namespace Kursach.ViewModel
             };
             timer.Tick += OnTimerTick;
 
+
+            CurrentColor = "#DBDBDB";
+            Language = "russian";
+            IsStarted = false;
             LineCount = 3;
             DoneLines = 0;
             Lesson = new LessonText(Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources", "russian.txt"), 77);
@@ -452,10 +456,6 @@ namespace Kursach.ViewModel
             OpenStatsFileCommand = new DelegateCommand(OnOpenStatsFileCommandExecuted, CanOpenStatsFileCommandExecute);
             ClearStatsFileCommand = new DelegateCommand(OnClearStatsFileCommandExecuted, CanClearStatsFileCommandExecute);
             #endregion
-
-            CurrentColor = "#DBDBDB";
-            Language = "russian";
-            IsStarted = false;
         }
     }
 }
