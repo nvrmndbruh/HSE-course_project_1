@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -179,6 +180,13 @@ namespace Kursach.ViewModel
             }
         }
 
+        public ICommand OpenHelpCenterCommand { get; }
+
+        void OnOpenHelpCenterCommandExecuted(object parameter)
+        {
+            Help.ShowHelp(null, "help.chm");
+        }
+
         int errorCount = 0;
 
         #region Команды
@@ -278,7 +286,7 @@ namespace Kursach.ViewModel
                     timer.Stop();
                     accuracy = (1 - (double)errorCount/(double)symbolCount) * 100;
                     string stats = $"Язык: {Language} | Введено строк: {LineCount} | Количество ошибок: {errorCount} | Время: {ElapsedTime} секунд | Скорость ввода: {Math.Round(symbolCount/(ElapsedTime/60), 2)} символов в минуту | Точность {Math.Round(accuracy)}%";
-                    MessageBox.Show("Вы успешно завершили тест, со статистикой вы можете ознакомиться по нажатию кнопки 'статистика'",
+                    System.Windows.MessageBox.Show("Вы успешно завершили тест, со статистикой вы можете ознакомиться по нажатию кнопки 'статистика'",
                         "Тест успешно пройден",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
@@ -416,7 +424,7 @@ namespace Kursach.ViewModel
         {
             if (File.Exists(statsFilePath))
             {
-                var answer = MessageBox.Show("Вы уверены, что хотите стереть все данные из файла статистики? После удаления данный не возможно будет восстановить.", "Удалить статистику?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var answer = System.Windows.MessageBox.Show("Вы уверены, что хотите стереть все данные из файла статистики? После удаления данный не возможно будет восстановить.", "Удалить статистику?", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (answer == MessageBoxResult.Yes)
                     File.WriteAllText(statsFilePath, string.Empty);
             }
@@ -455,6 +463,7 @@ namespace Kursach.ViewModel
             MaximizeWindowCommand = new DelegateCommand(OnMaximizeWindowCommandExecute);
             OpenStatsFileCommand = new DelegateCommand(OnOpenStatsFileCommandExecuted, CanOpenStatsFileCommandExecute);
             ClearStatsFileCommand = new DelegateCommand(OnClearStatsFileCommandExecuted, CanClearStatsFileCommandExecute);
+            OpenHelpCenterCommand = new DelegateCommand(OnOpenHelpCenterCommandExecuted);
             #endregion
         }
     }

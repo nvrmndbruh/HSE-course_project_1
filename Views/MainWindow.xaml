@@ -25,6 +25,10 @@
         <vm:MainViewModel/>
     </Window.DataContext>
 
+    <Window.InputBindings>
+        <KeyBinding Key="F1" Command="{Binding OpenHelpCenterCommand}"/>
+    </Window.InputBindings>
+
     <Grid Margin="10">
 
         <Grid.RowDefinitions>
@@ -271,11 +275,19 @@
                     Style="{StaticResource BaseButton}"/>
 
         </Grid>
+        <StackPanel Grid.Row="4" VerticalAlignment="Center">
+            <Button fs:Awesome.Content="Solid_QuestionCircle"
+                    Width="30" Height="30"
+                    FontSize="{StaticResource Big}"
+                    Style="{StaticResource TransparentButton}"
+                    Command="{Binding OpenHelpCenterCommand}"/>
 
-        <Button Grid.Row="4"
-                Content="?"
-                Width="60" Height="60"
-                Style="{StaticResource BaseButton}"/>
-
+            <TextBlock Text="F1 - помощь"
+                       Style="{StaticResource BaseText}"
+                       FontSize="{StaticResource Small}"
+                       FontWeight="ExtraBold"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+        
     </Grid>
 </Window>
