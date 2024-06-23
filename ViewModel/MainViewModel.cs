@@ -1,6 +1,7 @@
 ﻿using Kursach.Model;
 using System;
 using System.IO;
+using System.IO.IsolatedStorage;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -60,8 +61,12 @@ namespace Kursach.ViewModel
             {
                 isStarted = value;
                 OnPropertyChanged(nameof(IsStarted));
+                OnPropertyChanged(nameof(IsStartedInverted));
+
             }
         }
+
+        public bool IsStartedInverted => !isStarted;
 
         private int lines;
         public int Lines
@@ -199,7 +204,7 @@ namespace Kursach.ViewModel
 
         public ICommand ChangeLanguageCommand { get; }
 
-        private bool CanChangeLanguageCommandExecute(object parameter) => true;
+        private bool CanChangeLanguageCommandExecute(object parameter) => !IsStarted;
 
         private void OnChangeLanguageCommandExecuted(object parameter)
         {

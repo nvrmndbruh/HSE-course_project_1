@@ -29,6 +29,7 @@
         <KeyBinding Key="F1" Command="{Binding OpenHelpCenterCommand}"/>
     </Window.InputBindings>
 
+
     <Grid Margin="10">
 
         <Grid.RowDefinitions>
@@ -40,9 +41,9 @@
         </Grid.RowDefinitions>
 
         <Image Source="\Resources\logo\main_logo.png"
-                Width="200"
-                VerticalAlignment="Top"
-                HorizontalAlignment="Left" Margin="20" Grid.Row="0"/>
+               Width="200"
+               VerticalAlignment="Top"
+               HorizontalAlignment="Left" Margin="20" Grid.Row="0"/>
 
 
         <StackPanel Orientation="Horizontal"
@@ -75,7 +76,7 @@
                     FontSize="20"
                     Command="{Binding CloseApplicationCommand}">
             </Button>
-            
+
         </StackPanel>
 
         <Grid Grid.Row="0" Margin="10" Width="900" VerticalAlignment="Bottom">
@@ -125,13 +126,14 @@
                       Header="язык"
                       FontSize="{StaticResource ExtDefault}"
                       FontFamily="Consolas"
-                      Foreground="{StaticResource MainTextBrush}">
-                
+                      Foreground="{StaticResource MainTextBrush}"
+                      IsEnabled="{Binding IsStartedInverted, UpdateSourceTrigger=PropertyChanged}">
+
                 <StackPanel>
                     <RadioButton GroupName="Mode" Content="russian" IsChecked="True" Command="{Binding ChangeLanguageCommand}" CommandParameter="russian" FontFamily="Consolas" FontSize="{StaticResource Default}" Foreground="{StaticResource MainTextBrush}"/>
                     <RadioButton GroupName="Mode" Content="english" IsChecked="False" Command="{Binding ChangeLanguageCommand}" CommandParameter="english" FontFamily="Consolas" FontSize="{StaticResource Default}" Foreground="{StaticResource MainTextBrush}"/>
                 </StackPanel>
-                
+
             </Expander>
 
             <StackPanel Grid.Column="2"
@@ -170,7 +172,8 @@
                         Minimum="1"
                         Maximum="10"
                         Width="200"
-                        VerticalAlignment="Center">
+                        VerticalAlignment="Center"
+                        IsEnabled="{Binding IsStartedInverted, UpdateSourceTrigger=PropertyChanged}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="ValueChanged">
                             <i:InvokeCommandAction Command="{Binding GenerateTextCommand}"/>
@@ -183,14 +186,14 @@
 
         <StackPanel Grid.Row="2" VerticalAlignment="Center">
             <TextBlock HorizontalAlignment="Center" Margin="10" 
-                        Height="32"
-                        Width="1200"
-                        FontFamily="Consolas"
-                        Foreground="{StaticResource MainTextBrush}"
-                        Text="{Binding Lesson.CurrentText, UpdateSourceTrigger=PropertyChanged}"
-                        FontSize="{StaticResource Big}"
-                        TextWrapping="Wrap"
-                        Focusable="False">
+                       Height="32"
+                       Width="1200"
+                       FontFamily="Consolas"
+                       Foreground="{StaticResource MainTextBrush}"
+                       Text="{Binding Lesson.CurrentText, UpdateSourceTrigger=PropertyChanged}"
+                       FontSize="{StaticResource Big}"
+                       TextWrapping="Wrap"
+                       Focusable="False">
             </TextBlock>
 
             <TextBlock HorizontalAlignment="Center"
@@ -288,6 +291,7 @@
                        FontWeight="ExtraBold"
                        HorizontalAlignment="Center"/>
         </StackPanel>
-        
+
     </Grid>
+
 </Window>
