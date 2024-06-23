@@ -1,29 +1,72 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.IO.Packaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace Kursach.Model
 {
-    public class LessonText
+    public class LessonText : INotifyPropertyChanged
     {
         private Random random = new Random();
 
-        public string Text1 { get; set; }
-        public string Text2 { get; set; }
-        public string Text3 { get; set; }
-        public string Source { get; set; }
+        private string currentText;
+        private string nextText;
+        private string lastText;
+        private string source;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public string CurrentText
+        {
+            get => currentText;
+            set
+            {
+                currentText = value;
+                OnPropertyChanged(nameof(CurrentText));
+            }
+        }
+
+        public string NextText
+        {
+            get => nextText;
+            set
+            {
+                nextText = value;
+                OnPropertyChanged(nameof(NextText));
+            }
+        }
+
+        public string LastText
+        {
+            get => lastText;
+            set
+            {
+                lastText = value;
+                OnPropertyChanged(nameof(LastText));
+            }
+        }
+
+        public string Source
+        {
+            get => source;
+            set
+            {
+                source = value;
+                OnPropertyChanged(nameof(Source));
+            }
+        }
 
         public LessonText(string source, int lineLength = 100)
         {
             Source = source;
-            Text1 = GenerateText(Source, lineLength);
-            Text2 = GenerateText(Source, lineLength);
-            Text3 = GenerateText(Source, lineLength);
+            CurrentText = GenerateText(Source, lineLength);
+            NextText = GenerateText(Source, lineLength);
+            LastText = GenerateText(Source, lineLength);
         }
 
         public string GenerateText(string source, int length = 100)
@@ -43,16 +86,5 @@ namespace Kursach.Model
             
             return text;
         }
-        /*
-                public override string ToString()
-                {
-                    string text = "";
-                    foreach (string word in Text)
-                    {
-                        text += word;
-                        text += " ";
-                    }
-                    return text.Trim();
-                }*/
     }
 }

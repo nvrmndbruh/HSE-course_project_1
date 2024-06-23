@@ -4,15 +4,53 @@ using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace Kursach.ViewModel
 {
-    internal class MainViewModel : ViewModel
+    internal class MainViewModel : BaseViewModel
     {
-        private LessonText Lesson;
-        string statsFilePath = Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources", "stats.txt");
+        #region Lesson
 
+        LessonText lesson;
+
+        public LessonText Lesson
+        {
+            get => lesson;
+            set
+            {
+                lesson = value;
+                OnPropertyChanged(nameof(Lesson));
+            }
+        }
+
+        #endregion
+
+        #region Timer
+
+        public DispatcherTimer timer;
+
+        double elapsedTime;
+
+        public double ElapsedTime
+        {
+            get => Math.Round(elapsedTime, 1);
+            set
+            {
+                elapsedTime = value;
+                OnPropertyChanged(nameof(ElapsedTime));
+            }
+        }
+
+        private void OnTimerTick(object sender, EventArgs e)
+        {
+            ElapsedTime += 0.1;
+        }
+
+        #endregion
+
+        readonly string statsFilePath = Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources", "stats.txt");
 
         private bool isStarted;
         public bool IsStarted
@@ -25,121 +63,14 @@ namespace Kursach.ViewModel
             }
         }
 
-
-        public DispatcherTimer timer;
-
-        double elapsedTime;
-        public double ElapsedTime
+        private int lines;
+        public int Lines
         {
-            get => Math.Round(elapsedTime, 1);
+            get => lines;
             set
             {
-                elapsedTime = value;
-                OnPropertyChanged(nameof(ElapsedTime));
-            }
-        }
-        private void OnTimerTick(object sender, EventArgs e)
-        {
-            ElapsedTime += 0.1;
-        }
-
-
-        private int lineCount;
-        public int LineCount
-        {
-            get => lineCount;
-            set
-            {
-                lineCount = value;
-                OnPropertyChanged(nameof(LineCount));
-            }
-        }
-
-        #region Текущий цвет
-        private string currentColor;
-        public string CurrentColor
-        {
-            get => currentColor;
-            set
-            {
-                currentColor = value;
-                OnPropertyChanged(nameof(CurrentColor));
-            }
-        }
-        #endregion
-
-
-        #region Текущий текст и путь до файла
-        public string CurrentText
-        {
-            get => Lesson.Text1;
-            set
-            {
-                Lesson.Text1 = value;
-                OnPropertyChanged(nameof(CurrentText));
-            }
-        }
-
-
-        public string CurrentFilePath
-        {
-            get => Lesson.Source;
-            set
-            {
-                Lesson.Source = value;
-                OnPropertyChanged(nameof(CurrentFilePath));
-            }
-        }
-        #endregion
-
-
-        public string SecondText
-        {
-            get => Lesson.Text2;
-            set
-            {
-                Lesson.Text2 = value;
-                OnPropertyChanged(nameof(SecondText));
-            }
-        }
-
-        public string LastText
-        {
-            get => Lesson.Text3;
-            set
-            {
-                Lesson.Text3 = value;
-                OnPropertyChanged(nameof(LastText));
-            }
-        }
-
-        
-
-
-        private int _currentIndex;
-        public int CurrentIndex
-        {
-            get => _currentIndex;
-            set
-            {
-                _currentIndex = InputedText.Length;
-                OnPropertyChanged(nameof(CurrentIndex));
-            }
-        }
-
-
-        private string _InputedText;
-        public string InputedText
-        {
-            get => _InputedText;
-            set
-            {
-                _InputedText = value;
-                OnPropertyChanged(nameof(InputedText));
-                if (InputedText != null && InputedText != "")
-                {
-                    CurrentIndex = InputedText.Length;
-                }
+                lines = value;
+                OnPropertyChanged(nameof(Lines));
             }
         }
 
@@ -154,40 +85,75 @@ namespace Kursach.ViewModel
             }
         }
 
+        private string currentColor;
+        public string CurrentColor
+        {
+            get => currentColor;
+            set
+            {
+                currentColor = value;
+                OnPropertyChanged(nameof(CurrentColor));
+            }
+        }
+
+        private int currentIndex;
+        public int CurrentIndex
+        {
+            get => currentIndex;
+            set
+            {
+                currentIndex = TypedText.Length;
+                OnPropertyChanged(nameof(CurrentIndex));
+            }
+        }
+
+
+        private string typedText;
+        public string TypedText
+        {
+            get => typedText;
+            set
+            {
+                typedText = value;
+                OnPropertyChanged(nameof(TypedText));
+
+                if (TypedText == null || TypedText == "")
+                    CurrentIndex = 1;
+                else
+                    CurrentIndex = TypedText.Length - 1;
+                
+            }
+        }
+
+        
+
         public void TextSwap(object parameter)
         {
-            if ((LineCount - DoneLines) >= 3)
+            TypedText = "";
+
+            if ((Lines - DoneLines) >= 3)
             {
-                CurrentText = SecondText;
-                SecondText = LastText;
-                LastText = Lesson.GenerateText(CurrentFilePath, 77);
+                Lesson.CurrentText = Lesson.NextText;
+                Lesson.NextText = Lesson.LastText;
+                Lesson.LastText = Lesson.GenerateText(Lesson.Source, 77);
             }
-            else if ((LineCount - DoneLines) == 2)
+            else if ((Lines - DoneLines) == 2)
             {
-                CurrentText = SecondText;
-                SecondText = LastText;
-                LastText = "";
+                Lesson.CurrentText = Lesson.NextText;
+                Lesson.NextText = Lesson.LastText;
+                Lesson.LastText = "";
             }
-            else if ((LineCount - DoneLines) == 1)
+            else if ((Lines - DoneLines) == 1)
             {
-                CurrentText = SecondText.Trim();
-                SecondText = "";
-                LastText = "";
+                Lesson.CurrentText = Lesson.NextText.Trim();
+                Lesson.NextText = "";
+                Lesson.LastText = "";
             }
             else
             {
                 OnGenerateTextCommandExecuted(parameter);
-            }
+            }    
         }
-
-        public ICommand OpenHelpCenterCommand { get; }
-
-        void OnOpenHelpCenterCommandExecuted(object parameter)
-        {
-            Help.ShowHelp(null, "help.chm");
-        }
-
-        int errorCount = 0;
 
         #region Команды
 
@@ -198,28 +164,22 @@ namespace Kursach.ViewModel
 
         private void OnGenerateTextCommandExecuted(object parameter)
         {
-            InputedText = "";
+            TypedText = "";
             DoneLines = 0;
             errorCount = 0;
             symbolCount = 0;
-            Lesson = new LessonText(CurrentFilePath, 77);
-            if (LineCount >= 3)
+
+            Lesson = new LessonText(Lesson.Source, 77);
+
+            if (Lines == 2)
             {
-                CurrentText = Lesson.Text1;
-                SecondText = Lesson.Text2;
-                LastText = Lesson.Text3;
+                Lesson.LastText = "";
             }
-            else if (LineCount == 2)
+            else if (Lines == 1)
             {
-                CurrentText = Lesson.Text1;
-                SecondText = Lesson.Text2;
-                LastText = "";
-            }
-            else if (LineCount == 1)
-            {
-                CurrentText = Lesson.Text1.Trim();
-                SecondText = "";
-                LastText = "";
+                Lesson.CurrentText = Lesson.CurrentText.Trim();
+                Lesson.NextText = "";
+                Lesson.LastText = "";
             }
         }
         #endregion
@@ -244,7 +204,7 @@ namespace Kursach.ViewModel
         private void OnChangeLanguageCommandExecuted(object parameter)
         {
             Language = parameter.ToString();
-            CurrentFilePath = Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources/languages", $"{Language}.txt");
+            Lesson.Source = Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources/languages", $"{Language}.txt");
             OnCancelTestCommandExecuted(parameter);
             OnGenerateTextCommandExecuted(parameter);
         }
@@ -252,93 +212,94 @@ namespace Kursach.ViewModel
 
         #region Нажатие клавиш
 
-        int[] lengths = new int[2]; // сохранение длины введенной строки до нажатия и после
-        int symbolCount;            // количество введенных символов
-        double accuracy;            // точность
+        int[] lengths = new int[2];
+        int symbolCount;
+        int errorCount = 0;
 
         public ICommand KeyPressedCommand { get; }
 
         private void OnKeyPressedCommandExecuted(object parameter)
         {
-            if (CanStartTestCommandExecute(parameter))
-                OnStartTestCommandExecuted(parameter);
+            if (!isStarted)
+                StartTest();
 
-            if (lengths[0] == 0)
+            if (TypedText == Lesson.CurrentText.Substring(0, TypedText.Length))
             {
-                lengths[0] = InputedText.Length;
+                CurrentColor = "#DBDBDB";
             }
             else
             {
-                lengths[1] = lengths[0];
-                lengths[0] = InputedText.Length;
+                CurrentColor = "#FF6323";
+                bool isBack = CalculateTypedLengthDifference();
+                if (TypedText[CurrentIndex - 1] != Lesson.CurrentText[CurrentIndex - 1] && isBack)
+                {
+                    errorCount++;
+                }
             }
 
-            if (InputedText.Length == CurrentText.Length)
+            if (TypedText.Length == Lesson.CurrentText.Length)
             {
-                if (InputedText[CurrentIndex - 1] != CurrentText[CurrentIndex - 1])
-                    errorCount++;
-                InputedText = "";
                 DoneLines++;
-                symbolCount += CurrentText.Length;
+                symbolCount += Lesson.CurrentText.Length;
 
-                if (DoneLines == LineCount)
+                if (DoneLines == Lines)
                 {
-                    timer.Stop();
-                    accuracy = (1 - (double)errorCount/(double)symbolCount) * 100;
-                    string stats = $"Язык: {Language} | Введено строк: {LineCount} | Количество ошибок: {errorCount} | Время: {ElapsedTime} секунд | Скорость ввода: {Math.Round(symbolCount/(ElapsedTime/60), 2)} символов в минуту | Точность {Math.Round(accuracy)}%";
-                    System.Windows.MessageBox.Show("Вы успешно завершили тест, со статистикой вы можете ознакомиться по нажатию кнопки 'статистика'",
-                        "Тест успешно пройден",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                    InputedText = "";
-                    ElapsedTime = 0;
-                    string newEntry = $"{DateTime.Now}: {stats}\n";
-                    string existingContent = File.ReadAllText(statsFilePath);
-                    string newContent = newEntry + existingContent;
-                    File.WriteAllText(statsFilePath, newContent);
-                    IsStarted = false;
+                    EndTest(parameter);
                 }
 
                 TextSwap(parameter);
                 lengths[0] = 0;
                 lengths[1] = 0;
             }
+        }
+
+        bool CalculateTypedLengthDifference()
+        {
+            if (lengths[0] == 0)
+            {
+                lengths[0] = TypedText.Length;
+            }
             else
             {
-                if (InputedText == CurrentText.Substring(0, InputedText.Length))
-                {
-                    CurrentColor = "#DBDBDB";
-                }
-                else
-                {
-                    CurrentColor = "#FF6323";
-                    if (InputedText[CurrentIndex - 1] != CurrentText[CurrentIndex - 1] && lengths[0] > lengths[1])
-                    {
-                        errorCount++;
-                    }
-                }
+                lengths[1] = lengths[0];
+                lengths[0] = TypedText.Length;
             }
-            
+
+            return lengths[0] >= lengths[1];
         }
 
-        private bool CanKeyPressedCommandExecute(object parameter)
+        void StartTest()
         {
-            return true;
-        }
-        #endregion
-
-        #region Начать тест
-        public ICommand StartTestCommand {  get; }
-
-        private bool CanStartTestCommandExecute(object parameter) => !IsStarted;
-
-        private void OnStartTestCommandExecuted(object parameter)
-        {
-            ElapsedTime = 0;
-            timer.Start();
             DoneLines = 0;
             IsStarted = true;
+            timer.Start();
         }
+
+        void EndTest(object parameter)
+        {
+            timer.Stop();
+            System.Windows.MessageBox.Show(
+                "Вы успешно завершили тест, со статистикой вы можете ознакомиться по нажатию кнопки 'статистика'",
+                "Тест успешно пройден",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            CalculateLessonStatsAndAddToFile();
+            TypedText = "";
+            ElapsedTime = 0;
+            isStarted = false;
+        }
+
+        void CalculateLessonStatsAndAddToFile()
+        {
+            double accuracy = (1 - ((double)errorCount / (double)symbolCount)) * 100 >= 0 ? (1 - ((double)errorCount / (double)symbolCount)) * 100 : 0;
+            string stats = $"Язык: {Language} | Введено строк: {Lines} | Количество ошибок: {errorCount} | Время: {ElapsedTime} секунд | Скорость ввода: {Math.Round(symbolCount / (ElapsedTime / 60), 2)} символов в минуту | Точность {Math.Round(accuracy)}%";
+            string newEntry = $"{DateTime.Now}: {stats}\n";
+            string existingContent = File.ReadAllText(statsFilePath);
+            string newContent = newEntry + existingContent;
+            File.WriteAllText(statsFilePath, newContent);
+        }
+
+
         #endregion
 
         #region Отменить тест
@@ -351,7 +312,7 @@ namespace Kursach.ViewModel
             timer.Stop();
             symbolCount = 0;
             ElapsedTime = 0;
-            InputedText = "";
+            TypedText = "";
             DoneLines = 0;
             IsStarted = false;
             OnGenerateTextCommandExecuted(parameter);
@@ -434,6 +395,17 @@ namespace Kursach.ViewModel
 
         #endregion
 
+        #region Открыть справку
+
+        public ICommand OpenHelpCenterCommand { get; }
+
+        void OnOpenHelpCenterCommandExecuted(object parameter)
+        {
+            Help.ShowHelp(null, "help.chm");
+        }
+
+        #endregion
+
         #endregion
 
         public MainViewModel()
@@ -448,22 +420,21 @@ namespace Kursach.ViewModel
             CurrentColor = "#DBDBDB";
             Language = "russian";
             IsStarted = false;
-            LineCount = 3;
+            Lines = 3;
             DoneLines = 0;
             Lesson = new LessonText(Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources/languages", "russian.txt"), 77);
 
             #region Команды
-            ChangeLanguageCommand = new DelegateCommand(OnChangeLanguageCommandExecuted, CanChangeLanguageCommandExecute);
-            GenerateTextCommand = new DelegateCommand(OnGenerateTextCommandExecuted, CanGenerateTextCommandExecute);
-            KeyPressedCommand = new DelegateCommand(OnKeyPressedCommandExecuted, CanKeyPressedCommandExecute);
-            StartTestCommand = new DelegateCommand(OnStartTestCommandExecuted, CanStartTestCommandExecute);
-            CancelTestCommand = new DelegateCommand(OnCancelTestCommandExecuted, CanCancelTestCommandExecute);
-            CloseApplicationCommand = new DelegateCommand(OnCloseApplicationCommandExecute);
-            MinimizeWindowCommand = new DelegateCommand(OnMinimizeWindowCommandExecute);
-            MaximizeWindowCommand = new DelegateCommand(OnMaximizeWindowCommandExecute);
-            OpenStatsFileCommand = new DelegateCommand(OnOpenStatsFileCommandExecuted, CanOpenStatsFileCommandExecute);
-            ClearStatsFileCommand = new DelegateCommand(OnClearStatsFileCommandExecuted, CanClearStatsFileCommandExecute);
-            OpenHelpCenterCommand = new DelegateCommand(OnOpenHelpCenterCommandExecuted);
+            ChangeLanguageCommand = new RelayCommand(OnChangeLanguageCommandExecuted, CanChangeLanguageCommandExecute);
+            GenerateTextCommand = new RelayCommand(OnGenerateTextCommandExecuted, CanGenerateTextCommandExecute);
+            KeyPressedCommand = new RelayCommand(OnKeyPressedCommandExecuted);
+            CancelTestCommand = new RelayCommand(OnCancelTestCommandExecuted, CanCancelTestCommandExecute);
+            CloseApplicationCommand = new RelayCommand(OnCloseApplicationCommandExecute);
+            MinimizeWindowCommand = new RelayCommand(OnMinimizeWindowCommandExecute);
+            MaximizeWindowCommand = new RelayCommand(OnMaximizeWindowCommandExecute);
+            OpenStatsFileCommand = new RelayCommand(OnOpenStatsFileCommandExecuted, CanOpenStatsFileCommandExecute);
+            ClearStatsFileCommand = new RelayCommand(OnClearStatsFileCommandExecuted, CanClearStatsFileCommandExecute);
+            OpenHelpCenterCommand = new RelayCommand(OnOpenHelpCenterCommandExecuted);
             #endregion
         }
     }

@@ -1,7 +1,6 @@
 ﻿<Window x:Class="Kursach.View.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:bhv="clr-namespace:Kursach.Behaviors"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,8 +14,9 @@
         ResizeMode="CanResize"
         AllowsTransparency="True"
         Title="TYPR"
-        Background="{StaticResource BGBrush}" Icon="/Resources/logo/small_logo.png"
-        >
+        Background="{StaticResource BGBrush}"
+        Icon="/Resources/logo/small_logo.png">
+    
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="2"/>
     </WindowChrome.WindowChrome>
@@ -75,6 +75,7 @@
                     FontSize="20"
                     Command="{Binding CloseApplicationCommand}">
             </Button>
+            
         </StackPanel>
 
         <Grid Grid.Row="0" Margin="10" Width="900" VerticalAlignment="Bottom">
@@ -83,8 +84,6 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-
-            
 
             <Rectangle Fill="{StaticResource DarkerBGBrush}"
                        Grid.Column="0"
@@ -127,10 +126,12 @@
                       FontSize="{StaticResource ExtDefault}"
                       FontFamily="Consolas"
                       Foreground="{StaticResource MainTextBrush}">
+                
                 <StackPanel>
                     <RadioButton GroupName="Mode" Content="russian" IsChecked="True" Command="{Binding ChangeLanguageCommand}" CommandParameter="russian" FontFamily="Consolas" FontSize="{StaticResource Default}" Foreground="{StaticResource MainTextBrush}"/>
                     <RadioButton GroupName="Mode" Content="english" IsChecked="False" Command="{Binding ChangeLanguageCommand}" CommandParameter="english" FontFamily="Consolas" FontSize="{StaticResource Default}" Foreground="{StaticResource MainTextBrush}"/>
                 </StackPanel>
+                
             </Expander>
 
             <StackPanel Grid.Column="2"
@@ -156,7 +157,7 @@
                            TextAlignment="Center">
                 </TextBlock>
 
-                <TextBlock Text="{Binding LineCount, UpdateSourceTrigger=PropertyChanged}"
+                <TextBlock Text="{Binding Lines, UpdateSourceTrigger=PropertyChanged}"
                            Style="{StaticResource BaseText}"
                            FontSize="{StaticResource ExtDefault}"
                            Width="30"
@@ -165,7 +166,7 @@
                 </TextBlock>
 
                 <Slider Grid.Column="2"
-                        Value="{Binding LineCount}"
+                        Value="{Binding Lines}"
                         Minimum="1"
                         Maximum="10"
                         Width="200"
@@ -186,7 +187,7 @@
                         Width="1200"
                         FontFamily="Consolas"
                         Foreground="{StaticResource MainTextBrush}"
-                        Text="{Binding CurrentText, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding Lesson.CurrentText, UpdateSourceTrigger=PropertyChanged}"
                         FontSize="{StaticResource Big}"
                         TextWrapping="Wrap"
                         Focusable="False">
@@ -198,7 +199,7 @@
                        Width="1200"
                        FontFamily="Consolas"
                        Foreground="{StaticResource MainTextBrush}"
-                       Text="{Binding SecondText, UpdateSourceTrigger=PropertyChanged}"
+                       Text="{Binding Lesson.NextText, UpdateSourceTrigger=PropertyChanged}"
                        FontSize="{StaticResource Big}"
                        TextWrapping="Wrap"
                        Focusable="False">
@@ -209,7 +210,7 @@
                         Width="1200"
                         FontFamily="Consolas"
                         Foreground="{StaticResource MainTextBrush}"
-                        Text="{Binding LastText, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding Lesson.LastText, UpdateSourceTrigger=PropertyChanged}"
                         FontSize="{StaticResource Big}"
                         TextWrapping="Wrap"
                         Focusable="False">
@@ -228,11 +229,10 @@
                  Foreground="{Binding CurrentColor, UpdateSourceTrigger=PropertyChanged}"
                  BorderThickness="0"
                  Padding="-1"
-                 Text="{Binding InputedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 Text="{Binding TypedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  CaretBrush="{Binding CurrentColor, UpdateSourceTrigger=PropertyChanged}"
-                 MaxLength="{Binding CurrentText.Length,
-                 UpdateSourceTrigger=PropertyChanged}"
-                 VerticalScrollBarVisibility="Disabled" IsManipulationEnabled="False">
+                 MaxLength="{Binding Lesson.CurrentText.Length, UpdateSourceTrigger=PropertyChanged}"
+                 VerticalScrollBarVisibility="Disabled">
 
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="TextChanged">

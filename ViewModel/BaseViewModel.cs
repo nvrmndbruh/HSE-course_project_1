@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kursach.ViewModel
 {
-    internal abstract class ViewModel : INotifyPropertyChanged
+    internal abstract class BaseViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -24,7 +19,5 @@ namespace Kursach.ViewModel
             OnPropertyChanged(propertyName);
             return true;
         }
-
-        
     }
 }
