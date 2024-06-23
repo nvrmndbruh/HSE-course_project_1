@@ -98,7 +98,7 @@
             </Rectangle>
 
             <TextBlock Grid.Column="0"
-                       Text="{Binding ElapsedTime, UpdateSourceTrigger=PropertyChanged}"
+                       Text="{Binding Timer.ElapsedTime, UpdateSourceTrigger=PropertyChanged}"
                        Height="30"
                        Width="150"
                        Style="{StaticResource BaseText}"
@@ -127,7 +127,7 @@
                       FontSize="{StaticResource ExtDefault}"
                       FontFamily="Consolas"
                       Foreground="{StaticResource MainTextBrush}"
-                      IsEnabled="{Binding IsStartedInverted, UpdateSourceTrigger=PropertyChanged}">
+                      IsEnabled="{Binding Answer.IsStartedInverted, UpdateSourceTrigger=PropertyChanged}">
 
                 <StackPanel>
                     <RadioButton GroupName="Mode" Content="russian" IsChecked="True" Command="{Binding ChangeLanguageCommand}" CommandParameter="russian" FontFamily="Consolas" FontSize="{StaticResource Default}" Foreground="{StaticResource MainTextBrush}"/>
@@ -141,7 +141,7 @@
                         VerticalAlignment="Bottom"
                         HorizontalAlignment="Center">
 
-                <TextBlock Text="{Binding DoneLines, UpdateSourceTrigger=PropertyChanged}"
+                <TextBlock Text="{Binding Answer.DoneLines, UpdateSourceTrigger=PropertyChanged}"
                            Style="{StaticResource BaseText}"
                            FontSize="{StaticResource ExtDefault}"
                            Foreground="{StaticResource SecondTextBrush}"
@@ -159,7 +159,7 @@
                            TextAlignment="Center">
                 </TextBlock>
 
-                <TextBlock Text="{Binding Lines, UpdateSourceTrigger=PropertyChanged}"
+                <TextBlock Text="{Binding Lesson.Lines, UpdateSourceTrigger=PropertyChanged}"
                            Style="{StaticResource BaseText}"
                            FontSize="{StaticResource ExtDefault}"
                            Width="30"
@@ -168,12 +168,12 @@
                 </TextBlock>
 
                 <Slider Grid.Column="2"
-                        Value="{Binding Lines}"
+                        Value="{Binding TotalLines}"
                         Minimum="1"
                         Maximum="10"
                         Width="200"
                         VerticalAlignment="Center"
-                        IsEnabled="{Binding IsStartedInverted, UpdateSourceTrigger=PropertyChanged}">
+                        IsEnabled="{Binding Answer.IsStartedInverted, UpdateSourceTrigger=PropertyChanged}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="ValueChanged">
                             <i:InvokeCommandAction Command="{Binding GenerateTextCommand}"/>
@@ -232,7 +232,7 @@
                  Foreground="{Binding CurrentColor, UpdateSourceTrigger=PropertyChanged}"
                  BorderThickness="0"
                  Padding="-1"
-                 Text="{Binding TypedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 Text="{Binding Answer.TypedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  CaretBrush="{Binding CurrentColor, UpdateSourceTrigger=PropertyChanged}"
                  MaxLength="{Binding Lesson.CurrentText.Length, UpdateSourceTrigger=PropertyChanged}"
                  VerticalScrollBarVisibility="Disabled">

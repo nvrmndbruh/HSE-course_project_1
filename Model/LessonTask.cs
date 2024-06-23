@@ -1,25 +1,16 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 
 namespace Kursach.Model
 {
-    public class LessonText : INotifyPropertyChanged
+    public class LessonTask : BaseModel
     {
-        private Random random = new Random();
+        Random random = new Random();
 
-        private string currentText;
-        private string nextText;
-        private string lastText;
-        private string source;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        string currentText;
+        string nextText;
+        string lastText;
+        int lines;
 
         public string CurrentText
         {
@@ -51,6 +42,8 @@ namespace Kursach.Model
             }
         }
 
+        string source;
+
         public string Source
         {
             get => source;
@@ -61,12 +54,35 @@ namespace Kursach.Model
             }
         }
 
-        public LessonText(string source, int lineLength = 100)
+        public int Lines
+        {
+            get => lines;
+            set
+            {
+                lines = value;
+                OnPropertyChanged(nameof(Lines));
+            }
+        }
+
+        public LessonTask(string source, int lineCount, int lineLength = 100)
         {
             Source = source;
+            Lines = lineCount;
+
             CurrentText = GenerateText(Source, lineLength);
             NextText = GenerateText(Source, lineLength);
             LastText = GenerateText(Source, lineLength);
+
+            if (Lines == 2)
+            {
+                LastText = "";
+            }
+            else if (Lines == 1)
+            {
+                CurrentText = CurrentText.Trim();
+                NextText = "";
+                LastText = "";
+            }
         }
 
         public string GenerateText(string source, int length = 100)

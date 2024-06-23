@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Kursach.ViewModel
+namespace Kursach.Model
 {
-    internal abstract class BaseViewModel : INotifyPropertyChanged
+    public abstract class BaseModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -1,12 +1,9 @@
 ﻿using Kursach.Model;
 using System;
 using System.IO;
-using System.IO.IsolatedStorage;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace Kursach.ViewModel
 {
@@ -14,9 +11,9 @@ namespace Kursach.ViewModel
     {
         #region Lesson
 
-        LessonText lesson;
+        LessonTask lesson;
 
-        public LessonText Lesson
+        public LessonTask Lesson
         {
             get => lesson;
             set
@@ -28,67 +25,39 @@ namespace Kursach.ViewModel
 
         #endregion
 
-        #region Timer
+        #region Answer
 
-        public DispatcherTimer timer;
+        LessonAnswer answer;
 
-        double elapsedTime;
-
-        public double ElapsedTime
+        public LessonAnswer Answer
         {
-            get => Math.Round(elapsedTime, 1);
+            get => answer;
             set
             {
-                elapsedTime = value;
-                OnPropertyChanged(nameof(ElapsedTime));
+                answer = value;
+                OnPropertyChanged(nameof(Answer));
             }
         }
 
-        private void OnTimerTick(object sender, EventArgs e)
+        #endregion
+
+        #region Timer
+
+        private TimerModel timer;
+        public TimerModel Timer
         {
-            ElapsedTime += 0.1;
+            get => timer;
+            set
+            {
+                timer = value;
+                OnPropertyChanged(nameof(Timer));
+            }
         }
 
         #endregion
 
         readonly string statsFilePath = Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources", "stats.txt");
 
-        private bool isStarted;
-        public bool IsStarted
-        {
-            get => isStarted;
-            set
-            {
-                isStarted = value;
-                OnPropertyChanged(nameof(IsStarted));
-                OnPropertyChanged(nameof(IsStartedInverted));
-
-            }
-        }
-
-        public bool IsStartedInverted => !isStarted;
-
-        private int lines;
-        public int Lines
-        {
-            get => lines;
-            set
-            {
-                lines = value;
-                OnPropertyChanged(nameof(Lines));
-            }
-        }
-
-        private int doneLines;
-        public int DoneLines
-        {
-            get => doneLines;
-            set
-            {
-                doneLines = value;
-                OnPropertyChanged(nameof(DoneLines));
-            }
-        }
 
         private string currentColor;
         public string CurrentColor
@@ -101,92 +70,60 @@ namespace Kursach.ViewModel
             }
         }
 
-        private int currentIndex;
-        public int CurrentIndex
+        private int totalLines;
+        public int TotalLines
         {
-            get => currentIndex;
+            get => totalLines;
             set
             {
-                currentIndex = TypedText.Length;
-                OnPropertyChanged(nameof(CurrentIndex));
+                totalLines = value;
+                OnPropertyChanged(nameof(TotalLines));
             }
         }
-
-
-        private string typedText;
-        public string TypedText
-        {
-            get => typedText;
-            set
-            {
-                typedText = value;
-                OnPropertyChanged(nameof(TypedText));
-
-                if (TypedText == null || TypedText == "")
-                    CurrentIndex = 1;
-                else
-                    CurrentIndex = TypedText.Length - 1;
-                
-            }
-        }
-
-        
 
         public void TextSwap(object parameter)
         {
-            TypedText = "";
+            Answer.TypedText = "";
 
-            if ((Lines - DoneLines) >= 3)
+            if ((Lesson.Lines - Answer.DoneLines) >= 3)
             {
                 Lesson.CurrentText = Lesson.NextText;
                 Lesson.NextText = Lesson.LastText;
                 Lesson.LastText = Lesson.GenerateText(Lesson.Source, 77);
             }
-            else if ((Lines - DoneLines) == 2)
+            else if ((Lesson.Lines - Answer.DoneLines) == 2)
             {
                 Lesson.CurrentText = Lesson.NextText;
                 Lesson.NextText = Lesson.LastText;
                 Lesson.LastText = "";
             }
-            else if ((Lines - DoneLines) == 1)
+            else if ((Lesson.Lines - Answer.DoneLines) == 1)
             {
                 Lesson.CurrentText = Lesson.NextText.Trim();
                 Lesson.NextText = "";
                 Lesson.LastText = "";
             }
-            else
-            {
-                OnGenerateTextCommandExecuted(parameter);
-            }    
+            
         }
+
 
         #region Команды
 
         #region Генерация текста
+
         public ICommand GenerateTextCommand { get; }
 
-        private bool CanGenerateTextCommandExecute(object parameter) => !IsStarted;
+        private bool CanGenerateTextCommandExecute(object parameter) => !Answer.IsStarted;
 
         private void OnGenerateTextCommandExecuted(object parameter)
         {
-            TypedText = "";
-            DoneLines = 0;
-            errorCount = 0;
-            symbolCount = 0;
+            Answer = new LessonAnswer();
+            Lesson = new LessonTask(Lesson.Source, TotalLines, 77);
+            Timer = new TimerModel();
 
-            Lesson = new LessonText(Lesson.Source, 77);
-
-            if (Lines == 2)
-            {
-                Lesson.LastText = "";
-            }
-            else if (Lines == 1)
-            {
-                Lesson.CurrentText = Lesson.CurrentText.Trim();
-                Lesson.NextText = "";
-                Lesson.LastText = "";
-            }
+            Answer.IsStarted = false;
         }
+
         #endregion
 
         #region Смена языка
@@ -204,13 +141,12 @@ namespace Kursach.ViewModel
 
         public ICommand ChangeLanguageCommand { get; }
 
-        private bool CanChangeLanguageCommandExecute(object parameter) => !IsStarted;
+        private bool CanChangeLanguageCommandExecute(object parameter) => !Answer.IsStarted;
 
         private void OnChangeLanguageCommandExecuted(object parameter)
         {
             Language = parameter.ToString();
             Lesson.Source = Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources/languages", $"{Language}.txt");
-            OnCancelTestCommandExecuted(parameter);
             OnGenerateTextCommandExecuted(parameter);
         }
         #endregion
@@ -218,17 +154,15 @@ namespace Kursach.ViewModel
         #region Нажатие клавиш
 
         int[] lengths = new int[2];
-        int symbolCount;
-        int errorCount = 0;
 
         public ICommand KeyPressedCommand { get; }
 
         private void OnKeyPressedCommandExecuted(object parameter)
         {
-            if (!isStarted)
+            if (!Answer.IsStarted)
                 StartTest();
 
-            if (TypedText == Lesson.CurrentText.Substring(0, TypedText.Length))
+            if (Answer.TypedText == Lesson.CurrentText.Substring(0, Answer.TypedText.Length))
             {
                 CurrentColor = "#DBDBDB";
             }
@@ -236,25 +170,27 @@ namespace Kursach.ViewModel
             {
                 CurrentColor = "#FF6323";
                 bool isBack = CalculateTypedLengthDifference();
-                if (TypedText[CurrentIndex - 1] != Lesson.CurrentText[CurrentIndex - 1] && isBack)
+                if (Answer.TypedText[Answer.CurrentIndex - 1] != Lesson.CurrentText[Answer.CurrentIndex - 1] && !isBack)
                 {
-                    errorCount++;
+                    Answer.ErrorCount++;
                 }
             }
 
-            if (TypedText.Length == Lesson.CurrentText.Length)
+            if (Answer.TypedText.Length == Lesson.CurrentText.Length)
             {
-                DoneLines++;
-                symbolCount += Lesson.CurrentText.Length;
+                Answer.DoneLines++;
+                Answer.SymbolCount += Lesson.CurrentText.Length;
 
-                if (DoneLines == Lines)
+                if (Answer.DoneLines == Lesson.Lines)
                 {
                     EndTest(parameter);
                 }
-
-                TextSwap(parameter);
-                lengths[0] = 0;
-                lengths[1] = 0;
+                else
+                {
+                    TextSwap(parameter);
+                    lengths[0] = 0;
+                    lengths[1] = 0;
+                }
             }
         }
 
@@ -262,45 +198,51 @@ namespace Kursach.ViewModel
         {
             if (lengths[0] == 0)
             {
-                lengths[0] = TypedText.Length;
+                lengths[0] = Answer.TypedText.Length;
             }
             else
             {
                 lengths[1] = lengths[0];
-                lengths[0] = TypedText.Length;
+                lengths[0] = Answer.TypedText.Length;
             }
 
-            return lengths[0] >= lengths[1];
+            return lengths[0] < lengths[1];
         }
 
         void StartTest()
         {
-            DoneLines = 0;
-            IsStarted = true;
-            timer.Start();
+            Answer.IsStarted = true;
+            Timer.Start();
         }
 
         void EndTest(object parameter)
         {
-            timer.Stop();
+            Timer.Stop();
             System.Windows.MessageBox.Show(
                 "Вы успешно завершили тест, со статистикой вы можете ознакомиться по нажатию кнопки 'статистика'",
                 "Тест успешно пройден",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
             CalculateLessonStatsAndAddToFile();
-            TypedText = "";
-            ElapsedTime = 0;
-            isStarted = false;
+            
+            OnGenerateTextCommandExecuted(parameter);
         }
 
         void CalculateLessonStatsAndAddToFile()
         {
-            double accuracy = (1 - ((double)errorCount / (double)symbolCount)) * 100 >= 0 ? (1 - ((double)errorCount / (double)symbolCount)) * 100 : 0;
-            string stats = $"Язык: {Language} | Введено строк: {Lines} | Количество ошибок: {errorCount} | Время: {ElapsedTime} секунд | Скорость ввода: {Math.Round(symbolCount / (ElapsedTime / 60), 2)} символов в минуту | Точность {Math.Round(accuracy)}%";
+            double accuracy = (1 - ((double)Answer.ErrorCount / (double)Answer.SymbolCount)) >= 0 ? (1 - ((double)Answer.ErrorCount / (double)Answer.SymbolCount)) * 100 : 0;
+            string stats = 
+                $"Язык: {Language}" +
+                $" | Введено строк: {Lesson.Lines}" +
+                $" | Количество ошибок: {Answer.ErrorCount}" +
+                $" | Время: {Timer.ElapsedTime} секунд" +
+                $" | Скорость ввода: {Math.Round(Answer.SymbolCount / (Timer.ElapsedTime / 60), 2)} символов в минуту" +
+                $" | Точность {Math.Round(accuracy)}%";
+
             string newEntry = $"{DateTime.Now}: {stats}\n";
             string existingContent = File.ReadAllText(statsFilePath);
             string newContent = newEntry + existingContent;
+
             File.WriteAllText(statsFilePath, newContent);
         }
 
@@ -310,16 +252,13 @@ namespace Kursach.ViewModel
         #region Отменить тест
         public ICommand CancelTestCommand { get; }
 
-        private bool CanCancelTestCommandExecute(object parameter) => IsStarted;
+        private bool CanCancelTestCommandExecute(object parameter) => Answer.IsStarted;
 
         private void OnCancelTestCommandExecuted(object parameter)
         {
-            timer.Stop();
-            symbolCount = 0;
-            ElapsedTime = 0;
-            TypedText = "";
-            DoneLines = 0;
-            IsStarted = false;
+            Timer.Stop();
+            Timer = new TimerModel();
+            Answer = new LessonAnswer();
             OnGenerateTextCommandExecuted(parameter);
         }
         #endregion
@@ -366,7 +305,6 @@ namespace Kursach.ViewModel
 
         void OnOpenStatsFileCommandExecuted(object parameter)
         {
-            
             if (File.Exists(statsFilePath))
             {
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -378,7 +316,7 @@ namespace Kursach.ViewModel
             }
         }
 
-        bool CanOpenStatsFileCommandExecute(object parameter) => !isStarted;
+        bool CanOpenStatsFileCommandExecute(object parameter) => !Answer.IsStarted;
 
         #endregion
 
@@ -390,13 +328,17 @@ namespace Kursach.ViewModel
         {
             if (File.Exists(statsFilePath))
             {
-                var answer = System.Windows.MessageBox.Show("Вы уверены, что хотите стереть все данные из файла статистики? После удаления данный не возможно будет восстановить.", "Удалить статистику?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var answer = System.Windows.MessageBox.Show("Вы уверены, что хотите стереть все данные из файла статистики? После удаления данный не возможно будет восстановить.",
+                    "Удалить статистику?",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
                 if (answer == MessageBoxResult.Yes)
                     File.WriteAllText(statsFilePath, string.Empty);
             }
         }
 
-        bool CanClearStatsFileCommandExecute(object parameter) => !isStarted;
+        bool CanClearStatsFileCommandExecute(object parameter) => !Answer.IsStarted;
 
         #endregion
 
@@ -415,19 +357,20 @@ namespace Kursach.ViewModel
 
         public MainViewModel()
         {
-            timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(100)
-            };
-            timer.Tick += OnTimerTick;
 
+
+            Timer = new TimerModel();
 
             CurrentColor = "#DBDBDB";
             Language = "russian";
-            IsStarted = false;
-            Lines = 3;
-            DoneLines = 0;
-            Lesson = new LessonText(Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources/languages", "russian.txt"), 77);
+
+            
+
+            TotalLines = 3;
+
+            Lesson = new LessonTask(Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources/languages", "russian.txt"), TotalLines, 77);
+            Answer = new LessonAnswer();
+
 
             #region Команды
             ChangeLanguageCommand = new RelayCommand(OnChangeLanguageCommandExecuted, CanChangeLanguageCommandExecute);

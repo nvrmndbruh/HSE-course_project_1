@@ -116,6 +116,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\BaseModel.cs" />
+    <Compile Include="Model\LessonAnswer.cs" />
+    <Compile Include="Model\TimerModel.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
@@ -125,7 +128,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\LessonText.cs" />
+    <Compile Include="Model\LessonTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
