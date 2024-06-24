@@ -102,5 +102,29 @@ namespace Kursach.Model
             
             return text;
         }
+
+        public void TextSwap(LessonAnswer Answer)
+        {
+            Answer.TypedText = "";
+
+            if ((Lines - Answer.DoneLines) >= 3)
+            {
+                CurrentText = NextText;
+                NextText = LastText;
+                LastText = GenerateText(Source, 77);
+            }
+            else if ((Lines - Answer.DoneLines) == 2)
+            {
+                CurrentText = NextText;
+                NextText = LastText;
+                LastText = "";
+            }
+            else if ((Lines - Answer.DoneLines) == 1)
+            {
+                CurrentText = NextText.Trim();
+                NextText = "";
+                LastText = "";
+            }
+        }
     }
 }

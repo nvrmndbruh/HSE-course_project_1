@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Kursach.Model
 {
-    internal class LessonAnswer : BaseModel
+    public class LessonAnswer : BaseModel
     {
         private int doneLines;
         private int errorCount;

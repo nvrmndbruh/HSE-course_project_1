@@ -81,32 +81,6 @@ namespace Kursach.ViewModel
             }
         }
 
-        public void TextSwap(object parameter)
-        {
-            Answer.TypedText = "";
-
-            if ((Lesson.Lines - Answer.DoneLines) >= 3)
-            {
-                Lesson.CurrentText = Lesson.NextText;
-                Lesson.NextText = Lesson.LastText;
-                Lesson.LastText = Lesson.GenerateText(Lesson.Source, 77);
-            }
-            else if ((Lesson.Lines - Answer.DoneLines) == 2)
-            {
-                Lesson.CurrentText = Lesson.NextText;
-                Lesson.NextText = Lesson.LastText;
-                Lesson.LastText = "";
-            }
-            else if ((Lesson.Lines - Answer.DoneLines) == 1)
-            {
-                Lesson.CurrentText = Lesson.NextText.Trim();
-                Lesson.NextText = "";
-                Lesson.LastText = "";
-            }
-            
-        }
-
-
         #region Команды
 
         #region Генерация текста
@@ -125,6 +99,7 @@ namespace Kursach.ViewModel
         }
 
         #endregion
+
 
         #region Смена языка
 
@@ -151,9 +126,8 @@ namespace Kursach.ViewModel
         }
         #endregion
 
-        #region Нажатие клавиш
 
-        int[] lengths = new int[2];
+        #region Нажатие клавиш
 
         public ICommand KeyPressedCommand { get; }
 
@@ -187,12 +161,15 @@ namespace Kursach.ViewModel
                 }
                 else
                 {
-                    TextSwap(parameter);
+                    Lesson.TextSwap(Answer);
                     lengths[0] = 0;
                     lengths[1] = 0;
                 }
             }
         }
+
+
+        int[] lengths = new int[2];
 
         bool CalculateTypedLengthDifference()
         {
@@ -230,7 +207,10 @@ namespace Kursach.ViewModel
 
         void CalculateLessonStatsAndAddToFile()
         {
-            double accuracy = (1 - ((double)Answer.ErrorCount / (double)Answer.SymbolCount)) >= 0 ? (1 - ((double)Answer.ErrorCount / (double)Answer.SymbolCount)) * 100 : 0;
+            double accuracy = 
+                (1 - ((double)Answer.ErrorCount / (double)Answer.SymbolCount)) >= 0 ? 
+                (1 - ((double)Answer.ErrorCount / (double)Answer.SymbolCount)) * 100 : 0;
+
             string stats = 
                 $"Язык: {Language}" +
                 $" | Введено строк: {Lesson.Lines}" +
@@ -246,8 +226,11 @@ namespace Kursach.ViewModel
             File.WriteAllText(statsFilePath, newContent);
         }
 
+        
+
 
         #endregion
+
 
         #region Отменить тест
         public ICommand CancelTestCommand { get; }
@@ -256,37 +239,34 @@ namespace Kursach.ViewModel
 
         private void OnCancelTestCommandExecuted(object parameter)
         {
-            Timer.Stop();
             Timer = new TimerModel();
             Answer = new LessonAnswer();
             OnGenerateTextCommandExecuted(parameter);
         }
         #endregion
 
-        #region Закрыть окно
 
+        #region Закрыть окно
         public ICommand CloseApplicationCommand { get; }
 
         void OnCloseApplicationCommandExecute(object parameter)
         {
             App.Current.Shutdown();
         }
-
         #endregion
 
-        #region Свернуть окно
 
+        #region Свернуть окно
         public ICommand MinimizeWindowCommand { get; }
 
         void OnMinimizeWindowCommandExecute(object parameter)
         {
             App.Current.MainWindow.WindowState = WindowState.Minimized;
         }
-
         #endregion
 
-        #region Развернуть окно
 
+        #region Развернуть окно
         public ICommand MaximizeWindowCommand { get; }
 
         void OnMaximizeWindowCommandExecute(object parameter)
@@ -296,8 +276,8 @@ namespace Kursach.ViewModel
             else
                 App.Current.MainWindow.WindowState = WindowState.Normal;
         }
-
         #endregion
+
 
         #region Открыть файл со статистикой
 
@@ -320,6 +300,7 @@ namespace Kursach.ViewModel
 
         #endregion
 
+
         #region Очистить файл со статистикой
 
         public ICommand ClearStatsFileCommand { get; }
@@ -341,6 +322,7 @@ namespace Kursach.ViewModel
         bool CanClearStatsFileCommandExecute(object parameter) => !Answer.IsStarted;
 
         #endregion
+
 
         #region Открыть справку
 
