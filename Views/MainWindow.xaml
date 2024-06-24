@@ -5,7 +5,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fs="http://schemas.fontawesome.com/icons/"
-        xmlns:vm="clr-namespace:Kursach.ViewModel"
         xmlns:r="Kursach.Resources"
         mc:Ignorable="d"
         MinHeight="800" MinWidth="1300"
@@ -15,15 +14,16 @@
         AllowsTransparency="True"
         Title="TYPR"
         Background="{StaticResource BGBrush}"
-        Icon="/Resources/logo/small_logo.png">
-    
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="2"/>
-    </WindowChrome.WindowChrome>
+        Icon="/Resources/logo/small_logo.png"
+        xmlns:vm="clr-namespace:Kursach.ViewModel">
 
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="2"/>
+    </WindowChrome.WindowChrome>
 
     <Window.InputBindings>
         <KeyBinding Key="F1" Command="{Binding OpenHelpCenterCommand}"/>

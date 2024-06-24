@@ -239,8 +239,6 @@ namespace Kursach.ViewModel
 
         private void OnCancelTestCommandExecuted(object parameter)
         {
-            Timer = new TimerModel();
-            Answer = new LessonAnswer();
             OnGenerateTextCommandExecuted(parameter);
         }
         #endregion
@@ -285,15 +283,12 @@ namespace Kursach.ViewModel
 
         void OnOpenStatsFileCommandExecuted(object parameter)
         {
-            if (File.Exists(statsFilePath))
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = statsFilePath,
-                    UseShellExecute = true,
-                    Verb = "open"
-                });
-            }
+                FileName = statsFilePath,
+                UseShellExecute = true,
+                Verb = "open"
+            });
         }
 
         bool CanOpenStatsFileCommandExecute(object parameter) => !Answer.IsStarted;
@@ -309,7 +304,8 @@ namespace Kursach.ViewModel
         {
             if (File.Exists(statsFilePath))
             {
-                var answer = System.Windows.MessageBox.Show("Вы уверены, что хотите стереть все данные из файла статистики? После удаления данный не возможно будет восстановить.",
+                var answer = System.Windows.MessageBox.Show("Вы уверены, что хотите стереть все данные из файла статистики? " +
+                    "После удаления данный не возможно будет восстановить.",
                     "Удалить статистику?",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
@@ -339,22 +335,23 @@ namespace Kursach.ViewModel
 
         public MainViewModel()
         {
-
-
-            Timer = new TimerModel();
-
             CurrentColor = "#DBDBDB";
             Language = "russian";
 
-            
+            Answer = new LessonAnswer();
+            Timer = new TimerModel();
+            Lesson = new LessonTask(Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory))
+                .Parent.Parent.FullName,
+                "Resources/languages",
+                "russian.txt"),
+                TotalLines,
+                77);
 
             TotalLines = 3;
 
-            Lesson = new LessonTask(Path.Combine(Directory.GetParent((AppDomain.CurrentDomain.BaseDirectory)).Parent.Parent.FullName, "Resources/languages", "russian.txt"), TotalLines, 77);
-            Answer = new LessonAnswer();
-
 
             #region Команды
+
             ChangeLanguageCommand = new RelayCommand(OnChangeLanguageCommandExecuted, CanChangeLanguageCommandExecute);
             GenerateTextCommand = new RelayCommand(OnGenerateTextCommandExecuted, CanGenerateTextCommandExecute);
             KeyPressedCommand = new RelayCommand(OnKeyPressedCommandExecuted);
@@ -365,6 +362,7 @@ namespace Kursach.ViewModel
             OpenStatsFileCommand = new RelayCommand(OnOpenStatsFileCommandExecuted, CanOpenStatsFileCommandExecute);
             ClearStatsFileCommand = new RelayCommand(OnClearStatsFileCommandExecuted, CanClearStatsFileCommandExecute);
             OpenHelpCenterCommand = new RelayCommand(OnOpenHelpCenterCommandExecuted);
+
             #endregion
         }
     }
